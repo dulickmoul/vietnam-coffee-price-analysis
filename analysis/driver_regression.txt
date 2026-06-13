@@ -1,0 +1,27 @@
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:           dlog_robusta   R-squared:                       0.597
+Model:                            OLS   Adj. R-squared:                  0.596
+Method:                 Least Squares   F-statistic:                     42.46
+Date:                Sat, 13 Jun 2026   Prob (F-statistic):           2.08e-25
+Time:                        00:20:47   Log-Likelihood:                 187.18
+No. Observations:                 779   AIC:                            -366.4
+Df Residuals:                     775   BIC:                            -347.7
+Df Model:                           3                                         
+Covariance Type:                  HAC                                         
+================================================================================
+                   coef    std err          z      P>|z|      [0.025      0.975]
+--------------------------------------------------------------------------------
+const            0.0017      0.020      0.081      0.935      -0.038       0.042
+oni_lag13        0.0289      0.021      1.345      0.179      -0.013       0.071
+dlog_brent       0.0369      0.041      0.899      0.369      -0.044       0.117
+dlog_arabica     0.7393      0.073     10.170      0.000       0.597       0.882
+==============================================================================
+Omnibus:                        0.163   Durbin-Watson:                   0.104
+Prob(Omnibus):                  0.922   Jarque-Bera (JB):                0.132
+Skew:                           0.032   Prob(JB):                        0.936
+Kurtosis:                       3.008   Cond. No.                         3.35
+==============================================================================
+
+Notes:
+[1] Standard Errors are heteroscedasticity and autocorrelation robust (HAC) using 12 lags and without small sample correction

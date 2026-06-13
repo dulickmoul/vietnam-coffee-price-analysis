@@ -1,0 +1,6 @@
+strategy,avg_vnd_per_kg,n_harvests,best_year,worst_year,std
+S4 Hold to September,48973.0,15,2023,2018,28664.0
+S3 Quarterly tranches,48409.0,15,2024,2019,26164.0
+S2 Hold to June,47678.0,15,2024,2018,26831.0
+S5 Two-batch (Dec+Jun),47622.0,15,2024,2019,25612.0
+S1 Sell at harvest (Dec),47567.0,15,2024,2019,24986.0

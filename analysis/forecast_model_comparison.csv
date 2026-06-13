@@ -1,0 +1,17 @@
+split,model,mode,rmse,mape,dir_acc
+A: Normal era (test 2015-2019),Naive,static,0.366,17.67,
+A: Normal era (test 2015-2019),Seasonal naive,static,0.398,19.06,
+A: Normal era (test 2015-2019),SARIMA,static,0.335,16.15,
+A: Normal era (test 2015-2019),Holt-Winters,static,0.391,18.99,
+A: Normal era (test 2015-2019),Prophet,static,0.92,46.89,
+A: Normal era (test 2015-2019),XGBoost,static,0.404,19.49,
+B: Supercycle (test 2021-2025),Naive,static,2.071,43.39,
+B: Supercycle (test 2021-2025),Seasonal naive,static,2.128,45.99,
+B: Supercycle (test 2021-2025),SARIMA,static,2.065,43.14,
+B: Supercycle (test 2021-2025),Holt-Winters,static,1.982,39.86,
+B: Supercycle (test 2021-2025),Prophet,static,1.84,35.01,
+B: Supercycle (test 2021-2025),XGBoost,static,1.725,30.9,
+B rolling 1-step,SARIMA,rolling,0.268,5.14,67.8
+B rolling 1-step,Holt-Winters,rolling,0.27,5.4,45.8
+B rolling 1-step,XGBoost,rolling,0.281,5.97,45.8
+B rolling 1-step,Naive,rolling,0.271,5.38,0.0
