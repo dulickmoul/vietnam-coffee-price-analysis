@@ -1,4 +1,5 @@
 # When Should a Vietnamese Coffee Farmer Sell? ☕
+![Six models all missed the 2024 supercycle](analysis/charts/supercycle_stress_test.png)
 
 **A 66-year data analysis of Robusta & Arabica prices — built to answer one real question my parents ask every harvest in Lâm Đồng, Vietnam.**
 
