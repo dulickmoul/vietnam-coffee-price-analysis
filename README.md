@@ -43,13 +43,33 @@ Full writeup: [`FINDINGS.md`](FINDINGS.md)
 │   ├── pull_coffee_prices.py       # World Bank Pink Sheet + FX pipeline
 │   ├── pull_lamdong_prices.py      # Domestic price assembly (USDA GAIN + curated)
 │   ├── tier2_analysis.py           # STL decomposition, seasonality, volatility
+│   ├── backtest_core.py            # Shared strategy math (imported by script + app)
 │   ├── tier2b_backtest.py          # 5-strategy farmer selling backtest
 │   ├── tier3_drivers.py            # ENSO/oil/Arabica driver analysis
 │   └── tier4_forecast.py           # 6-model forecast comparison + stress test
+├── app/
+│   └── dashboard.py                # "Should I Sell?" interactive Streamlit tool
+├── tests/
+│   └── test_backtest_core.py       # Reproduces the committed backtest numbers
 └── analysis/
     ├── charts/                     # 9 publication-ready charts
     └── *.csv                       # All intermediate results
 ```
+
+## Try the dashboard 🖥️
+
+An interactive **"Should I Sell?"** tool wraps the backtest so a farmer can
+enter the current month and farm-gate price and see what each of the five
+selling strategies has historically returned:
+
+```bash
+pip install -r requirements.txt
+streamlit run app/dashboard.py
+```
+
+It reuses the exact strategy math from the analysis (`scripts/backtest_core.py`),
+so the tool and the writeup can never drift. Run `python -m pytest tests/` to
+confirm the core reproduces the committed backtest numbers.
 
 ## Reproduce it
 
