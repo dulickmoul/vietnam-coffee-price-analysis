@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Should I Sell? · Lâm Đồng Coffee</title>
+<style>
+  :root{
+    --robusta:#7B5E3A; --arabica:#C8924A; --green:#4A7C59; --red:#B94040;
+    --ink:#2C1F0E; --panel:#FAF7F2; --line:#E8E0D5; --bg:#FFFDFA;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    color:var(--ink); background:var(--bg);
+  }
+  .wrap{max-width:860px; margin:0 auto; padding:24px 18px 64px}
+  header h1{font-size:1.9rem; margin:0 0 4px}
+  header p{margin:0 0 20px; color:#6b5b46}
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:18px 20px; margin:16px 0;
+  }
+  h2{font-size:1.15rem; margin:0 0 12px}
+  .controls{display:flex; flex-wrap:wrap; gap:16px}
+  .controls label{display:flex; flex-direction:column; font-size:.82rem; color:#6b5b46; gap:4px}
+  .controls input, .controls select{
+    font-size:1rem; padding:8px 10px; border:1px solid var(--line); border-radius:8px;
+    background:#fff; color:var(--ink); min-width:150px;
+  }
+  .metrics{display:flex; flex-wrap:wrap; gap:12px; margin-top:4px}
+  .metric{flex:1 1 150px; background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 14px}
+  .metric .v{font-size:1.5rem; font-weight:700}
+  .metric .k{font-size:.78rem; color:#6b5b46}
+  .callout{border-left:4px solid var(--arabica); background:#fff; padding:12px 14px; border-radius:0 8px 8px 0; margin-top:12px}
+  .reco{border-left:4px solid var(--green); background:#F0F5F0}
+  table{width:100%; border-collapse:collapse; font-size:.92rem}
+  th,td{text-align:right; padding:9px 10px; border-bottom:1px solid var(--line)}
+  th:first-child, td:first-child{text-align:left}
+  thead th{font-size:.76rem; text-transform:uppercase; letter-spacing:.03em; color:#6b5b46}
+  tr.reco-row{background:#EEF4EE}
+  tr.reco-row td:first-child{font-weight:700}
+  .pill{display:inline-block; font-size:.68rem; font-weight:700; color:#fff; background:var(--green);
+        border-radius:999px; padding:1px 8px; margin-left:6px; vertical-align:middle}
+  .pos{color:var(--green)} .neg{color:var(--red)}
+  .bars{display:flex; align-items:stretch; gap:6px; height:200px; margin-top:8px}
+  .barcol{flex:1; display:flex; flex-direction:column; align-items:center}
+  .barcol .plot{position:relative; width:100%; flex:1}
+  .barcol .plot::before{content:""; position:absolute; left:0; right:0; top:50%; border-top:1px solid var(--ink); opacity:.55}
+  .barcol .bar{position:absolute; left:15%; width:70%; border-radius:3px}
+  .barcol.now .bar{outline:2px solid var(--ink); outline-offset:1px}
+  .barcol .lab{font-size:.68rem; margin-top:4px; color:#6b5b46}
+  .barcol.now .lab{font-weight:700; color:var(--ink)}
+  .barcol .val{position:absolute; left:0; right:0; text-align:center; font-size:.62rem; color:#6b5b46; white-space:nowrap}
+  details{margin-top:12px} summary{cursor:pointer; font-weight:600}
+  details ul{margin:8px 0 0; padding-left:20px; color:#4a3d2c; font-size:.9rem}
+  footer{margin-top:28px; font-size:.8rem; color:#8a795f; text-align:center}
+  a{color:var(--robusta)}
+  @media (prefers-color-scheme: dark){
+    :root{--ink:#EDE4D6; --panel:#241d14; --line:#3a3020; --bg:#1a150e}
+    .controls input,.controls select,.metric,.callout{background:#2b2318}
+    .reco{background:#20301f} tr.reco-row{background:#1f2c1e}
+    header p,.metric .k,.controls label,.barcol .lab,.barcol .val{color:#a89a80}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>☕ Should I Sell?</h1>
+    <p>Lâm Đồng Robusta — a decision aid built on <span id="nHarvests"></span> backtested harvests. <em>History, not a forecast.</em></p>
+  </header>
+
+  <section class="card">
+    <h2>Your situation</h2>
+    <div class="controls">
+      <label>Current month
+        <select id="month"></select>
+      </label>
+      <label>Current farm-gate price (VND/kg)
+        <input id="price" type="number" step="500" min="0">
+      </label>
+      <label>Harvest size (tonnes)
+        <input id="tonnes" type="number" step="0.5" min="0" value="5">
+      </label>
+    </div>
+    <p id="todayLine" style="margin:14px 0 0; color:#6b5b46"></p>
+  </section>
+
+  <section class="card">
+    <h2>Where <span id="monthName"></span> sits seasonally</h2>
+    <div class="metrics">
+      <div class="metric"><div class="v" id="mSeason"></div><div class="k">This month's seasonal effect</div></div>
+      <div class="metric"><div class="v" id="mSwing"></div><div class="k">Full-year seasonal swing</div></div>
+      <div class="metric"><div class="v" id="mPeak"></div><div class="k">Seasonal peak month</div></div>
+    </div>
+    <div class="callout">
+      <strong>The month barely matters.</strong> The entire seasonal swing is only about
+      <span id="swingText"></span> percentage points — the peak is the Oct–Nov pre-harvest
+      squeeze, not the mid-year window folklore suggests. Which <em>crop year</em> you sell
+      into moves prices by hundreds of percent, so that is the decision that actually matters.
+    </div>
+    <h2 style="margin-top:18px">True seasonal pattern (STL, trend removed)</h2>
+    <div class="bars" id="bars"></div>
+  </section>
+
+  <section class="card">
+    <h2>How the five selling strategies have paid off</h2>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>Strategy</th><th>Avg VND/kg</th><th>Volatility</th>
+          <th>vs harvest</th><th id="revHead">Your 5t (M VND)</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="callout reco" id="reco"></div>
+    <details>
+      <summary>Data-honesty notes</summary>
+      <ul>
+        <li>Backtest assumes <strong>0.5%/month storage loss</strong> and a farmer-owned warehouse (no financing cost).</li>
+        <li>No forecasting model in the companion analysis (SARIMA, Prophet, XGBoost) could predict the 2024 price spike — coffee is close to a random walk at short horizons.</li>
+        <li>Every number here is a <em>historical average</em> across the backtest window (<span id="coverage"></span>), not a prediction for this crop.</li>
+      </ul>
+    </details>
+  </section>
+
+  <footer>
+    Built from <code>data/lamdong_coffee_prices_monthly.csv</code> via
+    <code>scripts/backtest_core.py</code> — the same math as the analysis writeup and the Streamlit app.
+  </footer>
+</div>
+
+<script id="dashboard-data" type="application/json">
+{
+  "months": [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec"
+  ],
+  "latest": {
+    "label": "May 2026",
+    "month": 5,
+    "price": 85100
+  },
+  "coverage": "Jan 2010–May 2026",
+  "mean_price": 50323,
+  "n_harvests": 15,
+  "seasonal_pct": [
+    -0.31,
+    1.23,
+    -0.08,
+    -2.69,
+    -3.61,
+    -2.0,
+    -1.72,
+    -0.56,
+    -0.18,
+    2.59,
+    3.28,
+    1.83
+  ],
+  "seasonal_peak_month": 11,
+  "strategies": [
+    {
+      "name": "S4 Hold to September",
+      "blurb": "Store the whole crop and sell in September.",
+      "avg": 48973,
+      "std": 28664,
+      "best_year": 2023,
+      "worst_year": 2018,
+      "premium_pct": 3.0,
+      "recommended": false
+    },
+    {
+      "name": "S3 Quarterly tranches",
+      "blurb": "Sell 25% each in Dec, Mar, Jun, Sep.",
+      "avg": 48409,
+      "std": 26164,
+      "best_year": 2024,
+      "worst_year": 2019,
+      "premium_pct": 1.8,
+      "recommended": true
+    },
+    {
+      "name": "S2 Hold to June",
+      "blurb": "Store the whole crop and sell in June.",
+      "avg": 47678,
+      "std": 26831,
+      "best_year": 2024,
+      "worst_year": 2018,
+      "premium_pct": 0.2,
+      "recommended": false
+    },
+    {
+      "name": "S5 Two-batch (Dec+Jun)",
+      "blurb": "Sell half in December, half in June.",
+      "avg": 47622,
+      "std": 25612,
+      "best_year": 2024,
+      "worst_year": 2019,
+      "premium_pct": 0.1,
+      "recommended": false
+    },
+    {
+      "name": "S1 Sell at harvest (Dec)",
+      "blurb": "Sell 100% in December, right after harvest.",
+      "avg": 47567,
+      "std": 24986,
+      "best_year": 2024,
+      "worst_year": 2019,
+      "premium_pct": 0.0,
+      "recommended": false
+    }
+  ]
+}
+</script>
+
+<script>
+"use strict";
+const DATA = JSON.parse(document.getElementById("dashboard-data").textContent);
+const fmt = n => Math.round(n).toLocaleString("en-US");
+const $ = id => document.getElementById(id);
+
+// ── Populate static bits ──────────────────────────────────────────────
+$("nHarvests").textContent = DATA.n_harvests;
+$("coverage").textContent = DATA.coverage;
+const seas = DATA.seasonal_pct;
+const swing = Math.max(...seas) - Math.min(...seas);
+$("mSwing").textContent = swing.toFixed(1) + " pp";
+$("swingText").textContent = Math.round(swing);
+$("mPeak").textContent = DATA.months[DATA.seasonal_peak_month - 1];
+
+// Month selector, defaulting to latest data month
+const msel = $("month");
+DATA.months.forEach((m, i) => {
+  const o = document.createElement("option");
+  o.value = i + 1; o.textContent = m;
+  msel.appendChild(o);
+});
+msel.value = DATA.latest.month;
+$("price").value = DATA.latest.price;
+
+// ── Seasonal bar chart ────────────────────────────────────────────────
+function drawBars(selMonth){
+  const bars = $("bars");
+  bars.innerHTML = "";
+  const maxAbs = Math.max(...seas.map(Math.abs));
+  seas.forEach((v, i) => {
+    const col = document.createElement("div");
+    col.className = "barcol" + (i + 1 === selMonth ? " now" : "");
+    const plot = document.createElement("div");
+    plot.className = "plot";
+    const h = Math.abs(v) / maxAbs * 48;           // % of each half (up or down from center)
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    bar.style.height = h + "%";
+    bar.style.background = v >= 0 ? "var(--green)" : "var(--red)";
+    // diverge from the central zero line: positive grows up, negative grows down
+    if (v >= 0) bar.style.bottom = "50%"; else bar.style.top = "50%";
+    const val = document.createElement("div");
+    val.className = "val";
+    if (v >= 0) val.style.bottom = "calc(50% + " + h + "% + 2px)";
+    else        val.style.top    = "calc(50% + " + h + "% + 2px)";
+    val.textContent = (v >= 0 ? "+" : "") + v.toFixed(1);
+    plot.appendChild(bar); plot.appendChild(val);
+    const lab = document.createElement("div");
+    lab.className = "lab";
+    lab.textContent = DATA.months[i];
+    col.appendChild(plot); col.appendChild(lab);
+    bars.appendChild(col);
+  });
+}
+
+// ── Strategy table + recommendation ───────────────────────────────────
+function render(){
+  const month = parseInt(msel.value, 10);
+  const price = parseFloat($("price").value) || 0;
+  const tonnes = parseFloat($("tonnes").value) || 0;
+
+  $("monthName").textContent = DATA.months[month - 1];
+  const sNow = seas[month - 1];
+  const mEl = $("mSeason");
+  mEl.textContent = (sNow >= 0 ? "+" : "") + sNow.toFixed(1) + "%";
+  mEl.className = "v " + (sNow >= 0 ? "pos" : "neg");
+
+  $("revHead").textContent = `Your ${(+tonnes.toFixed(2))}t (M VND)`;
+  const rows = $("rows");
+  rows.innerHTML = "";
+  DATA.strategies.forEach(s => {
+    const tr = document.createElement("tr");
+    if (s.recommended) tr.className = "reco-row";
+    const rev = (s.avg * tonnes * 1000 / 1e6).toFixed(1);
+    const prem = (s.premium_pct >= 0 ? "+" : "") + s.premium_pct.toFixed(1) + "%";
+    tr.innerHTML =
+      `<td>${s.name}${s.recommended ? '<span class="pill">pick</span>' : ''}</td>` +
+      `<td>${fmt(s.avg)}</td><td>${fmt(s.std)}</td>` +
+      `<td class="${s.premium_pct >= 0 ? 'pos' : 'neg'}">${prem}</td>` +
+      `<td>${(+rev).toLocaleString("en-US")}</td>`;
+    rows.appendChild(tr);
+  });
+
+  const pick = DATA.strategies.find(s => s.recommended);
+  const top = DATA.strategies[0];
+  $("reco").innerHTML =
+    `<strong>Recommended: ${pick.name}.</strong> It captured most of the holding ` +
+    `premium (avg ${fmt(pick.avg)} VND/kg) at lower volatility (std ${fmt(pick.std)}) than ` +
+    `betting the whole crop on one month, and it spreads cash flow across the year to line up ` +
+    `with fertilizer bills. The highest raw average was <strong>${top.name}</strong> ` +
+    `(${fmt(top.avg)} VND/kg) — but that means selling everything in one month, so its swings are larger.`;
+
+  const todayRev = (price * tonnes * 1000 / 1e6);
+  $("todayLine").innerHTML =
+    `Selling your ${(+tonnes.toFixed(2))}t <strong>today at ${fmt(price)} VND/kg</strong> would raise ` +
+    `~${todayRev.toLocaleString("en-US", {maximumFractionDigits: 1})}M VND. ` +
+    `Latest data point: ${DATA.latest.label} · ${fmt(DATA.latest.price)} VND/kg.`;
+
+  drawBars(month);
+}
+
+["month", "price", "tonnes"].forEach(id => {
+  $(id).addEventListener("input", render);
+});
+render();
+</script>
+</body>
+</html>

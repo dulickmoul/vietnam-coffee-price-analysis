@@ -71,6 +71,17 @@ It reuses the exact strategy math from the analysis (`scripts/backtest_core.py`)
 so the tool and the writeup can never drift. Run `python -m pytest tests/` to
 confirm the core reproduces the committed backtest numbers.
 
+### Zero-install version
+
+`docs/index.html` is the same tool as a **single self-contained web page** — no
+Python, no server. Just open the file in a browser, or host it on GitHub Pages
+(Settings → Pages → deploy from `main` / `/docs`). The backtest numbers are
+baked into the page; regenerate them after a data refresh with:
+
+```bash
+python scripts/export_dashboard_data.py
+```
+
 ## Reproduce it
 
 ```bash

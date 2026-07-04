@@ -1,0 +1,91 @@
+{
+  "months": [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec"
+  ],
+  "latest": {
+    "label": "May 2026",
+    "month": 5,
+    "price": 85100
+  },
+  "coverage": "Jan 2010–May 2026",
+  "mean_price": 50323,
+  "n_harvests": 15,
+  "seasonal_pct": [
+    -0.31,
+    1.23,
+    -0.08,
+    -2.69,
+    -3.61,
+    -2.0,
+    -1.72,
+    -0.56,
+    -0.18,
+    2.59,
+    3.28,
+    1.83
+  ],
+  "seasonal_peak_month": 11,
+  "strategies": [
+    {
+      "name": "S4 Hold to September",
+      "blurb": "Store the whole crop and sell in September.",
+      "avg": 48973,
+      "std": 28664,
+      "best_year": 2023,
+      "worst_year": 2018,
+      "premium_pct": 3.0,
+      "recommended": false
+    },
+    {
+      "name": "S3 Quarterly tranches",
+      "blurb": "Sell 25% each in Dec, Mar, Jun, Sep.",
+      "avg": 48409,
+      "std": 26164,
+      "best_year": 2024,
+      "worst_year": 2019,
+      "premium_pct": 1.8,
+      "recommended": true
+    },
+    {
+      "name": "S2 Hold to June",
+      "blurb": "Store the whole crop and sell in June.",
+      "avg": 47678,
+      "std": 26831,
+      "best_year": 2024,
+      "worst_year": 2018,
+      "premium_pct": 0.2,
+      "recommended": false
+    },
+    {
+      "name": "S5 Two-batch (Dec+Jun)",
+      "blurb": "Sell half in December, half in June.",
+      "avg": 47622,
+      "std": 25612,
+      "best_year": 2024,
+      "worst_year": 2019,
+      "premium_pct": 0.1,
+      "recommended": false
+    },
+    {
+      "name": "S1 Sell at harvest (Dec)",
+      "blurb": "Sell 100% in December, right after harvest.",
+      "avg": 47567,
+      "std": 24986,
+      "best_year": 2024,
+      "worst_year": 2019,
+      "premium_pct": 0.0,
+      "recommended": false
+    }
+  ]
+}
