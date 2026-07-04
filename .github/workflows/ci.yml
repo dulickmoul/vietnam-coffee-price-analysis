@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      # Slim install: only what the backtest core, tests, and export need.
+      # The heavy modelling deps (xgboost, prophet) are not exercised in CI.
+      - name: Install dependencies
+        run: pip install pandas numpy scipy statsmodels pytest
+
+      - name: Run tests
+        run: python -m pytest tests/ -v
+
+      # Guard the single-source-of-truth invariant: the numbers baked into the
+      # static dashboard must match a fresh export from backtest_core.py.
+      - name: Check static dashboard data is in sync
+        run: |
+          python scripts/export_dashboard_data.py
+          if ! git diff --exit-code docs/; then
+            echo "::error::docs/ is out of date. Run: python scripts/export_dashboard_data.py, then commit."
+            exit 1
+          fi
