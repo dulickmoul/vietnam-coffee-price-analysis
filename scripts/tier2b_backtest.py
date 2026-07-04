@@ -84,63 +84,18 @@ print("PART 2 — FARMER STRATEGY BACKTEST (2010-2025 harvests)")
 print("="*70)
 
 prices = dom["lamdong_robusta_vnd_kg"].copy()
-STORAGE_LOSS_PM = 0.005  # 0.5% weight/quality loss per month held
 
-def get_price(year, month):
-    try:
-        return prices.loc[f"{year}-{month:02d}-01"]
-    except KeyError:
-        return None
+# Strategy math now lives in scripts/backtest_core.py — a single source of truth
+# shared with the "Should I Sell?" dashboard (app/dashboard.py).
+from backtest_core import (
+    STRATEGIES as strategies,
+    backtest_strategies,
+    backtest_by_year,
+)
 
-# Harvest year H means crop harvested Nov-Dec of year H
-# Selling months relative to harvest (Dec = month 0)
-strategies = {
-    "S1 Sell at harvest (Dec)":      [(0, 1.00)],
-    "S2 Hold to June":               [(6, 1.00)],
-    "S3 Quarterly tranches":         [(0, 0.25), (3, 0.25), (6, 0.25), (9, 0.25)],
-    "S4 Hold to September":          [(9, 1.00)],
-    "S5 Two-batch (Dec+Jun)":        [(0, 0.50), (6, 0.50)],
-}
-
-def sell_month(harvest_year, offset):
-    # offset 0 = Dec of harvest year; offset k = k months later
-    base = pd.Timestamp(f"{harvest_year}-12-01")
-    target = base + pd.DateOffset(months=offset)
-    return target.year, target.month
-
-results = {}
-detail_rows = []
 harvest_years = range(2010, 2025)  # 2010..2024 harvests (2024 harvest sells into 2025)
 
-for strat_name, legs in strategies.items():
-    revenues = []
-    for hy in harvest_years:
-        total = 0
-        ok = True
-        for offset, frac in legs:
-            yr, mo = sell_month(hy, offset)
-            p = get_price(yr, mo)
-            if p is None:
-                ok = False
-                break
-            # apply storage loss
-            effective = p * (1 - STORAGE_LOSS_PM) ** offset
-            total += frac * effective
-        if ok:
-            revenues.append({"harvest_year": hy, "revenue_per_kg": total})
-    df_r = pd.DataFrame(revenues)
-    results[strat_name] = df_r
-    avg = df_r["revenue_per_kg"].mean()
-    detail_rows.append({
-        "strategy": strat_name,
-        "avg_vnd_per_kg": round(avg, 0),
-        "n_harvests": len(df_r),
-        "best_year": int(df_r.loc[df_r["revenue_per_kg"].idxmax(), "harvest_year"]),
-        "worst_year": int(df_r.loc[df_r["revenue_per_kg"].idxmin(), "harvest_year"]),
-        "std": round(df_r["revenue_per_kg"].std(), 0),
-    })
-
-summary = pd.DataFrame(detail_rows).sort_values("avg_vnd_per_kg", ascending=False)
+summary = backtest_strategies(prices, harvest_years)
 print(f"\n{'Strategy':<28} {'Avg VND/kg':>11} {'Std':>9}")
 print("-"*52)
 for _, r in summary.iterrows():
@@ -156,8 +111,7 @@ for _, r in summary.iterrows():
 
 # Per-year winner analysis
 print(f"\nYear-by-year winner:")
-all_years = pd.DataFrame({s: results[s].set_index("harvest_year")["revenue_per_kg"]
-                          for s in strategies})
+all_years = backtest_by_year(prices, harvest_years)
 all_years["winner"] = all_years.idxmax(axis=1)
 win_counts = all_years["winner"].value_counts()
 for s, c in win_counts.items():
